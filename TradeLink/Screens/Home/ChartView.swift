@@ -7,19 +7,23 @@
 
 import Foundation
 import SwiftUI
+import UIKit
 
 class ChartViewModel:ObservableObject {
     @Published var min:Double = 0
     @Published var max:Double = 100
     @Published var timeStart:Double = 0
     @Published var timeEnd:Double = 100
+    @Published var color:UIColor = UIColor.gray
     
     @Published var points = [CGPoint]()
     
     private var trades = [Trade]()
     
-    func setTrades(_ trades:[Trade]) {
+    
+    func setTrades(_ trades:[Trade], color:UIColor) {
         self.trades = trades
+        self.color = color
         //self.calculatePoints()
     }
     
@@ -69,8 +73,8 @@ struct ChartView:View {
                     if let lastPoint = viewModel.points.last {
                         let lastX = lastPoint.x * reader.size.width
                         let lastY = lastPoint.y * reader.size.height
-                        path.move(to: CGPoint(x: lastX, y: lastY))
-                        path.addLine(to: CGPoint(x: reader.size.width, y: lastY))
+                        path.move(to: CGPoint(x: lastX, y: reader.size.height - lastY))
+                        path.addLine(to: CGPoint(x: reader.size.width, y: reader.size.height - lastY))
                     } else {
                         path.move(to: CGPoint(x: 0, y: reader.size.height / 2))
                         path.addLine(to: CGPoint(x: reader.size.width, y: reader.size.height / 2))
@@ -78,7 +82,7 @@ struct ChartView:View {
                     
                 }
                 .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
-                .stroke(Color(UIColor(hex: "02D277").withAlphaComponent(0.25)), lineWidth: lineWidth)
+                .stroke(Color(viewModel.color.withAlphaComponent(0.25)), lineWidth: lineWidth)
                 
                 Path { path in
                     if viewModel.points.count >= 2 {
@@ -86,18 +90,18 @@ struct ChartView:View {
                         
                         let firstX = firstPoint.x * reader.size.width
                         let firstY = firstPoint.y * reader.size.height
-                        path.move(to: CGPoint(x: firstX, y: firstY))
+                        path.move(to: CGPoint(x: firstX, y: reader.size.height - firstY))
                         
                         for i in 1..<viewModel.points.count-1 {
                             let point = viewModel.points[i]
                             let x = point.x * reader.size.width
                             let y = point.y * reader.size.height
-                            path.addLine(to: CGPoint(x: x, y: y))
+                            path.addLine(to: CGPoint(x: x, y: reader.size.height - y))
                         }
                         let lastPoint = viewModel.points.last!
                         let lastX = lastPoint.x * reader.size.width
                         let lastY = lastPoint.y * reader.size.height
-                        path.addLine(to: CGPoint(x: lastX, y: lastY))
+                        path.addLine(to: CGPoint(x: lastX, y: reader.size.height - lastY))
                         
                     } else {
                         
@@ -105,7 +109,7 @@ struct ChartView:View {
                     
                 }
                 .stroke(style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
-                .stroke(Color(UIColor(hex: "02D277")), lineWidth: lineWidth)
+                .stroke(Color(viewModel.color), lineWidth: lineWidth)
             }
             
         }

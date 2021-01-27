@@ -70,10 +70,7 @@ class RootTabBarController: UITabBarController {
         view.insertSubview(miniBar, belowSubview: tabBar)
         miniBar.constraintToSuperview(nil, 0, nil, 0, ignoreSafeArea: true)
         miniBar.bottomAnchor.constraint(equalTo: tabBar.topAnchor).isActive = true
-        miniBar.isHidden = true
-        miniBar.isUserInteractionEnabled = true
-        let tap = UITapGestureRecognizer(target: self, action: #selector(openItem))
-        miniBar.addGestureRecognizer(tap)
+        miniBar.dismiss()
         
         
         RNSocketManager.shared.connect()
@@ -83,11 +80,34 @@ class RootTabBarController: UITabBarController {
         print("UserSession: \(userSession.user.username)")
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(openItem), name: Notification.Name("open-item"), object: nil)
+    }
     
-    @objc func openItem() {
-        let detail = DetailViewController()
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc func handleTap() {
+        
+    }
+    
+    
+    @objc func openItem(_ notification:Notification) {
+        guard let item = notification.userInfo?["item"] as? Item else { return }
+        guard let _item = marketSession.itemsDict[item.symbol] else { return }
+        print("item: \(item.symbol)")
+        let detail = DetailViewController(item: _item)
         detail.transitioningDelegate = transitionDelegate
         detail.modalPresentationStyle = .custom
         self.present(detail, animated: true, completion: nil)
+        
+        miniBar.setup(item: _item)
+        miniBar.isHidden = true
     }
 }

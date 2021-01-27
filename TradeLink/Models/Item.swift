@@ -6,12 +6,13 @@
 //
 
 import Foundation
+import UIKit
 
 protocol ItemDelegate {
     func didUpdate(_ item:Item)
 }
 
-protocol Item {
+protocol Item:class {
     var symbol: String { get }
     var base: String { get }
     var socketSymbol: String { get }
@@ -20,6 +21,13 @@ protocol Item {
     
     var trades:[Trade] { get }
     var price:Double? { get }
+    var prevClose:Double? { get }
+    var change:Double? { get }
+    var changePercent:Double? { get }
+    var changeStr:String { get }
+    var changePercentStr:String { get }
+    var changeFullStr:String { get }
+    var changeColor:UIColor { get }
     
     var delegates:[String:ItemDelegate] { get }
     
@@ -31,6 +39,7 @@ protocol Item {
     func setDelegate(key:String, _ delegate:ItemDelegate)
     func removeDelegate(key:String)
     func updateDelegates()
+    
     
     
 }
