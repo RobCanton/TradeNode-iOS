@@ -80,3 +80,23 @@ func parseItem(from dto:ItemDTO) -> Item? {
     return item
     
 }
+
+enum StatType:String {
+    case open = "Open"
+    case low = "Low"
+    case high = "High"
+    case volume = "Volume"
+    case marketCap = "Mkt Cap"
+    case prevClose = "Prev Close"
+    case close = "Close"
+    
+    static let all = [open, low, high, volume, marketCap, prevClose, close]
+    static let forex = [open, low, high, volume, prevClose]
+    static let crypto = [open, low, high, volume]
+}
+
+
+struct StatValue {
+    let type:StatType
+    let value:String
+}

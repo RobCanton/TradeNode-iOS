@@ -8,9 +8,9 @@
 import Foundation
 import UIKit
 
-class DetailHeaderCell:UITableViewCell {
-    var symbolLabel:UILabel!
-    var nameLabel:UILabel!
+class DetailDescriptionCell:UITableViewCell {
+    var descriptionLabel:UILabel!
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setup()
@@ -22,11 +22,12 @@ class DetailHeaderCell:UITableViewCell {
     }
     
     private func setup() {
-        self.backgroundColor = UIColor.Theme.background2
-        symbolLabel = UILabel()
-        symbolLabel.font = UIFont.systemFont(ofSize: 24.0, weight: .semibold)
-        //symbolLabel.text = "AAPL"
-        contentView.addSubview(symbolLabel)
-        symbolLabel.constraintToSuperview(12, 12, nil, nil, ignoreSafeArea: true)
+        self.backgroundColor = UIColor.theme.secondaryBackground
+        descriptionLabel = UILabel()
+        descriptionLabel.font = UIFont.systemFont(ofSize: 14.0, weight: .regular)
+        contentView.addSubview(descriptionLabel)
+        descriptionLabel.textColor = UIColor.theme.secondaryLabel
+        descriptionLabel.constraintToSuperview(12, 12, 12, 12, ignoreSafeArea: true)
+        descriptionLabel.text = "Bitcoin is a decentralized digital currency that enables instant payments to anyone, anywhere in the world. Bitcoin uses peer-to-peer technology to operate with no central authority: transaction management and money issuance are carried out collectively by the network."
     }
 }

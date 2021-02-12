@@ -16,6 +16,9 @@ class CryptoItem:Item {
     let name: String
     let cluster: MarketCluster
     
+    var inorderTrades = 0
+    var outOfOrderTrades = 0
+    
     var trades: [Trade]
     
     var price: Double? {
@@ -49,12 +52,12 @@ class CryptoItem:Item {
     }
     
     var changeColor:UIColor {
-        var color = UIColor.gray
+        var color = UIColor.theme.neutralLabel
         if let change = change {
             if change > 0 {
-                color = UIColor(hex: "00CC8C")
+                color = UIColor.theme.positiveLabel
             } else if change < 0 {
-                color = UIColor(hex: "FE3653")
+                color = UIColor.theme.negativeLabel
             }
         }
         return color
@@ -78,8 +81,6 @@ class CryptoItem:Item {
                let lastUpdatedStr = data.lastUpdated,
                let lastUpdated = Double(lastUpdatedStr) {
                  
-                 print("lastPrice: \(lastPrice)")
-                 print("lastUpdated: \(lastUpdated)")
                  let trade = CryptoTrade(price: lastPrice, timestamp: lastUpdated)
                  self.trades.append(trade)
             }
@@ -121,15 +122,29 @@ class CryptoItem:Item {
 
             let trade = CryptoTrade(price: p, timestamp: t)
 
-            self.trades.append(trade)
-
+            if let last = self.trades.last {
+                if trade.timestamp < last.timestamp {
+                    //print("\(self.symbol): trade predates last trade")
+                    self.outOfOrderTrades += 1
+                } else {
+                    self.inorderTrades += 1
+                    self.trades.append(trade)
+                    //print("")
+                }
+            } else {
+                self.trades.append(trade)
+            }
+            
+            //print("\(self.symbol): \(self.inorderTrades) | \(self.outOfOrderTrades)")
+            
+            
             if self.trades.count > 750 {
                 let _ = self.trades.removeFirst()
             }
             
-            self.trades.sort(by: {
-                return $0.timestamp < $1.timestamp
-            })
+//            self.trades.sort(by: {
+//                return $0.timestamp < $1.timestamp
+//            })
             
             //self.updateDelegates()
             NotificationCenter.default.post(Notification(name: Notification.Name("T.\(self.symbol)")))

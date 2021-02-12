@@ -8,6 +8,10 @@
 import Foundation
 import UIKit
 
+protocol RootTabBarDelegate:class {
+    func rootPush(_ viewController:UIViewController, animated:Bool)
+}
+
 class RootTabBarController: UITabBarController {
     
     var miniBar:MinibarView!
@@ -30,6 +34,7 @@ class RootTabBarController: UITabBarController {
         let homeNav = UINavigationController(rootViewController: homeVC)
         homeNav.tabBarItem.image = UIImage(named: "Home")
         homeNav.tabBarItem.title = "Home"
+        
         
         screenerVC = ScreenerViewController()
         let screenerNav = UINavigationController(rootViewController: screenerVC)
@@ -61,10 +66,11 @@ class RootTabBarController: UITabBarController {
     override func viewDidLoad() {
         
         super.viewDidLoad()
-        tabBar.backgroundColor = UIColor.Theme.background//Theme.background
-        tabBar.barTintColor = UIColor.Theme.background//Theme.background
+        tabBar.backgroundColor = UIColor.theme.secondaryBackground//Theme.background
+        tabBar.barTintColor = UIColor.theme.secondaryBackground//Theme.background
         tabBar.isTranslucent = false
-        tabBar.tintColor = UIColor.white
+        tabBar.tintColor = UIColor.theme.label
+        
         
         miniBar = MinibarView()
         view.insertSubview(miniBar, belowSubview: tabBar)
@@ -105,9 +111,20 @@ class RootTabBarController: UITabBarController {
         let detail = DetailViewController(item: _item)
         detail.transitioningDelegate = transitionDelegate
         detail.modalPresentationStyle = .custom
+        detail.rootDelegate = self
         self.present(detail, animated: true, completion: nil)
         
         miniBar.setup(item: _item)
         miniBar.isHidden = true
+    }
+}
+
+extension RootTabBarController: RootTabBarDelegate {
+    func rootPush(_ viewController: UIViewController, animated: Bool) {
+        print("rootPush")
+        DispatchQueue.main.async {
+            guard let selected = self.selectedViewController as? UINavigationController else { return }
+            selected.pushViewController(viewController, animated: animated)
+        }
     }
 }

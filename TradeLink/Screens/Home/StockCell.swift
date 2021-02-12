@@ -20,6 +20,8 @@ class StockCell:UITableViewCell {
     
     weak var item:Item?
     
+    
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         symbolLabel = UILabel()
         nameLabel = UILabel()
@@ -36,7 +38,7 @@ class StockCell:UITableViewCell {
     }
     
     private func setup() {
-        backgroundColor = UIColor.Theme.background2
+        backgroundColor = UIColor.theme.background
         //contentView.backgroundColor = UIColor.Theme.background2
         
         let titleStack = UIStackView()
@@ -48,10 +50,11 @@ class StockCell:UITableViewCell {
         titleStack.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.38).isActive = true
         
         symbolLabel.text = "AAPL"
+        symbolLabel.textColor = UIColor.theme.label
         symbolLabel.font = UIFont.systemFont(ofSize: 18.0, weight: .semibold)
         titleStack.addArrangedSubview(symbolLabel)
         nameLabel.text = "Apple Inc"
-        nameLabel.textColor = .secondaryLabel
+        nameLabel.textColor = UIColor.theme.secondaryLabel
         nameLabel.font = UIFont.systemFont(ofSize: 13.0, weight: .regular)
         
         titleStack.addArrangedSubview(nameLabel)
@@ -66,12 +69,13 @@ class StockCell:UITableViewCell {
         priceStack.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.38).isActive = true
         
         priceLabel.text = "17.20"
+        priceLabel.textColor = UIColor.theme.label
         priceLabel.font = UIFont.monospacedSystemFont(ofSize: 18.0, weight: .semibold)
         
         priceStack.addArrangedSubview(priceLabel)
         
-        changeLabel.text = "+6.20"
-        changeLabel.textColor = UIColor(hex: "02D277")
+        changeLabel.text = "-"
+        changeLabel.textColor = UIColor.theme.secondaryLabel
         changeLabel.font = UIFont.monospacedSystemFont(ofSize: 11.0, weight: .regular)
         
         priceStack.addArrangedSubview(changeLabel)
@@ -92,7 +96,7 @@ class StockCell:UITableViewCell {
         //item.setDelegate(key: "home", self)
         symbolLabel.text = item.symbol
         nameLabel.text = item.name
-
+        self.chartViewModel.isObserving = true
         self.didUpdate()
     }
     
@@ -111,5 +115,15 @@ class StockCell:UITableViewCell {
         chartViewModel.setTrades(item.trades, color: changeColor)
     }
     
+    func stopUpdating() {
+        NotificationCenter.default.removeObserver(self)
+        //self.chartView.cancelTimer()
+        self.chartViewModel.isObserving = false
+    }
     
+    func startUpdating() {
+        guard let item = self.item else { return }
+        setup(item: item)
+        //self.chartView.instantiateTimer()
+    }
 }

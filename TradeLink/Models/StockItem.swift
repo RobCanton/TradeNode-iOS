@@ -53,12 +53,12 @@ class StockItem:Item {
     }
     
     var changeColor:UIColor {
-        var color = UIColor.gray
+        var color = UIColor.theme.neutralLabel
         if let change = change {
             if change > 0 {
-                color = UIColor(hex: "00CC8C")
+                color = UIColor.theme.positiveLabel
             } else if change < 0 {
-                color = UIColor(hex: "FE3653")
+                color = UIColor.theme.negativeLabel
             }
         }
         return color

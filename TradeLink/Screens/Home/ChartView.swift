@@ -8,18 +8,24 @@
 import Foundation
 import SwiftUI
 import UIKit
+import Combine
 
 class ChartViewModel:ObservableObject {
     @Published var min:Double = 0
     @Published var max:Double = 100
+    @Published var average:Double = 0
     @Published var timeStart:Double = 0
     @Published var timeEnd:Double = 100
-    @Published var color:UIColor = UIColor.gray
-    
+    @Published var color:UIColor = UIColor.theme.neutralLabel
+    @State var isTimerRunning = false
+    @Published var isObserving = true
     @Published var points = [CGPoint]()
+    
     
     private var trades = [Trade]()
     
+    var mid:Double = 0
+    var rangeSet = false
     
     func setTrades(_ trades:[Trade], color:UIColor) {
         self.trades = trades
@@ -32,8 +38,21 @@ class ChartViewModel:ObservableObject {
         let latestTrade = trades.last!
         let latestPrice = latestTrade.price
         let diff = latestTrade.price * 0.01
-        self.min = latestPrice - diff
-        self.max = latestPrice + diff
+//        if !rangeSet {
+//            self.min = latestPrice - diff
+//            self.max = latestPrice + diff
+//            self.rangeSet = true
+//        }
+        
+        average = 0
+        for i in 0..<trades.count {
+            average += Double(trades[i].price)
+        }
+        average /= Double(trades.count)
+        
+        self.min = average - average * 0.01
+        self.max = average + average * 0.01
+        
 
         self.timeStart = Date().timeIntervalSince1970 * 1000
         self.timeEnd = timeStart - (1000 * 15)
@@ -41,6 +60,8 @@ class ChartViewModel:ObservableObject {
         let xRange = timeStart - timeEnd
         let yRange = max - min
         points = []
+        
+        //var average:Double = 0
         for i in 0..<trades.count {
             let trade = trades[i]
             if (trade.timestamp > timeEnd - (1000 * 5)) {
@@ -51,14 +72,22 @@ class ChartViewModel:ObservableObject {
                 points.append(CGPoint(x: CGFloat(x), y: CGFloat(y)))
             }
             
+            //average += trade.price
+            
         }
+        //average /= Double(trades.count)
+        //print("average: \(average)")
+        
         
     }
 }
 
 struct ChartView:View {
     
-    let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
+    let timer = Timer.publish(every: 0.02, on: .main, in: .common).autoconnect()
+
+    
+    @State var isObserving = true
     
     @ObservedObject var viewModel:ChartViewModel
     @State var count = 0
@@ -114,12 +143,22 @@ struct ChartView:View {
             
         }
         .clipped()
-            
-        
         .onReceive(timer) { input in
-            viewModel.calculatePoints()
+            if viewModel.isObserving {
+                viewModel.calculatePoints()
+            }
+            
+
         }
+//
+    }
+    
+    func startTimer() {
         
     }
+
+    func stopTimer() {
+       
+   }
     
 }

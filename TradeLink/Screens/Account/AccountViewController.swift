@@ -17,10 +17,10 @@ class AccountViewController:UIViewController, UITableViewDelegate, UITableViewDa
         title = "Account"
         self.navigationController?.navigationBar.tintColor = UIColor.label
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(named: "Close"), style: .plain, target: self, action: #selector(handleClose))
-        view.backgroundColor = UIColor.Theme.background2
+        view.backgroundColor = UIColor.theme.secondaryBackground
         
         tableView = UITableView(frame: view.bounds, style: .grouped)
-        tableView.backgroundColor = UIColor.Theme.background2
+        tableView.backgroundColor = UIColor.theme.secondaryBackground
         view.addSubview(tableView)
         tableView.constraintToSuperview(0, 0, 0, 0, ignoreSafeArea: false)
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")

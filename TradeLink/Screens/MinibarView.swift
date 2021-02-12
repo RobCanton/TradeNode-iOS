@@ -34,7 +34,7 @@ class MinibarView:UIView {
     }
     
     private func setup() {
-        self.backgroundColor = UIColor.Theme.background.withAlphaComponent(0.85)
+        self.backgroundColor = UIColor.theme.secondaryBackground.withAlphaComponent(0.85)
         self.constraintHeight(to: Self.height)
         
 //        let itemRow = ItemRow(item: MarketItem(from: SymbolSearchResult(s: "", b: "", n: "", x: "", c: 0)))

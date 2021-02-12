@@ -32,7 +32,7 @@ class WatchlistHeaderView:UIView, UICollectionViewDelegate, UICollectionViewData
         sortButton.titleLabel?.font = UIFont.systemFont(ofSize: 15.0, weight: .regular)
         sortButton.tintColor = UIColor.secondaryLabel
         self.addSubview(sortButton)
-        sortButton.backgroundColor = UIColor.Theme.background
+        sortButton.backgroundColor = UIColor.theme.secondaryBackground
         sortButton.constraintWidth(to: 32)
         sortButton.constraintHeight(to: 32)
         sortButton.constraintToSuperview(12, 12, 12, nil, ignoreSafeArea: true)
@@ -109,7 +109,7 @@ class SortCell:UICollectionViewCell {
     }
     
     private func setup() {
-        contentView.backgroundColor = UIColor.Theme.background
+        contentView.backgroundColor = UIColor.theme.background
         iconView = UIImageView()
         contentView.addSubview(iconView)
         
@@ -136,7 +136,7 @@ class TagCell:UICollectionViewCell {
     }
     
     private func setup() {
-        contentView.backgroundColor = UIColor.Theme.background
+        contentView.backgroundColor = UIColor.theme.background
         textLabel = UILabel()
         textLabel.textColor = .secondaryLabel
         contentView.addSubview(textLabel)

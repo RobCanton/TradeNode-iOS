@@ -33,11 +33,11 @@ class DetailHeaderView:UIView {
     }
     
     private func setup() {
-        self.backgroundColor = UIColor.Theme.background
+        self.backgroundColor = UIColor.theme.chartBackground
         backdrop = UIView()
         self.addSubview(backdrop)
         backdrop.constraintToSuperview(0, 0, 0, 0, ignoreSafeArea: true)
-        backdrop.backgroundColor = UIColor.black
+        backdrop.backgroundColor = UIColor.theme.chartBackground
         contentView = UIView()
         self.addSubview(contentView)
         contentView.constraintToSuperview(insets: .zero, ignoreSafeArea: true)
@@ -46,26 +46,26 @@ class DetailHeaderView:UIView {
         contentView.addSubview(titleRow)
         titleRow.constraintToSuperview(0, 0, 0, nil, ignoreSafeArea: true)
         titleRow.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.5).isActive = true
-        
+
         nameLabel = UILabel()
         nameLabel.font = UIFont.systemFont(ofSize: 14.0, weight: .regular)
         nameLabel.text = "Apple Inc"
         nameLabel.textColor = .secondaryLabel
         titleRow.addSubview(nameLabel)
         nameLabel.constraintToSuperview(nil, 12, 12, 8, ignoreSafeArea: true)
-        
+
         symbolLabel = UILabel()
         symbolLabel.font = UIFont.systemFont(ofSize: 20.0, weight: .semibold)
         symbolLabel.text = "AAPL"
         titleRow.addSubview(symbolLabel)
         symbolLabel.constraintToSuperview(nil, 12, nil, 8, ignoreSafeArea: true)
         symbolLabel.bottomAnchor.constraint(equalTo: nameLabel.topAnchor, constant: -4.0).isActive = true
-        
+
         let priceRow = UIView()
         contentView.addSubview(priceRow)
         priceRow.constraintToSuperview(0, nil, 0, 0, ignoreSafeArea: true)
         priceRow.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.5).isActive = true
-        
+
         changeLabel = UILabel()
         changeLabel.text = "-"
         changeLabel.textAlignment = .right
@@ -73,8 +73,8 @@ class DetailHeaderView:UIView {
         changeLabel.font = UIFont.monospacedSystemFont(ofSize: 12.0, weight: .light)
         contentView.addSubview(changeLabel)
         changeLabel.constraintToSuperview(nil, 8, 12, 12, ignoreSafeArea: true)
-        
-        
+
+
         priceLabel = UILabel()
         priceLabel.text = "-"
         priceLabel.textAlignment = .right
@@ -83,23 +83,22 @@ class DetailHeaderView:UIView {
         priceLabel.constraintToSuperview(nil, 8, nil, 12, ignoreSafeArea: true)
         priceLabel.bottomAnchor.constraint(equalTo: changeLabel.topAnchor, constant: -4.0).isActive = true
         
+        self.layoutIfNeeded()
+        
+    }
+    
+    func setupChart() {
         chartViewModel = ChartViewModel()
         chartView = ChartView(viewModel: chartViewModel)
         let host = UIHostingController(rootView: chartView)
         contentView.addSubview(host.view)
+        //host.view.constraintToCenter(axis: [.x, .y])
+        //host.view.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.74).isActive = true
+        //host.view.constraintHeight(to: 200)
         host.view.constraintToSuperview(12, 12, 52, 12, ignoreSafeArea: false)
-        //host.view.bottomAnchor.constraint(equalTo: titleRow.topAnchor, constant: 8.0).isActive = true
+//        host.view.bottomAnchor.constraint(equalTo: titleRow.topAnchor, constant: 8.0).isActive = true
         host.view.backgroundColor = UIColor.clear
         host.view.clipsToBounds = true
-        
-//        let itemRow = ItemRow(symbol: "AAPL", name: "Apple Inc")
-//        let viewCtrl = UIHostingController(rootView: itemRow)
-////
-//        self.addSubview(viewCtrl.view)
-//        viewCtrl.view.constraintToSuperview(nil, 0, 0, 0, ignoreSafeArea: true)
-//        viewCtrl.view.constraintHeight(to: MinibarView.height)
-//        viewCtrl.view.backgroundColor = UIColor.clear
-//        viewCtrl.view.backgroundColor = UIColor.clear
     }
     
     func setup(item:Item) {
@@ -111,6 +110,8 @@ class DetailHeaderView:UIView {
         didUpdate()
         self.isHidden = false
     }
+    
+    
     
     @objc func didUpdate() {
         guard let item = self.item else { return }
@@ -128,5 +129,11 @@ class DetailHeaderView:UIView {
 //        if updateChart {
 //            //chartViewModel.setTrades(item.trades, color: changeColor)
 //        }
+    }
+    
+    func clear() {
+        self.item = nil
+        self.chartViewModel.isObserving = false
+        NotificationCenter.default.removeObserver(self)
     }
 }
