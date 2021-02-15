@@ -8,13 +8,14 @@
 import Foundation
 
 class UserItem {
-    let id:Int
+    let id:String
     let symbol:String
     let tags:[String]
     
-    init(dto: UserItemDTO) {
+    init?(dto: UserItemDTO) {
+        guard let item = dto.item else { return nil }
         self.id = dto.id
-        self.symbol = dto.item.symbol
+        self.symbol = item.symbol
         self.tags = ["tech"]
     }
 }

@@ -227,6 +227,9 @@
 		B078431225B0AFC000C1802C /* ScreenerVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B078431125B0AFC000C1802C /* ScreenerVC.swift */; };
 		B07905BD25BF2A2800B8089B /* WatchlistHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07905BC25BF2A2800B8089B /* WatchlistHeaderView.swift */; };
 		B07D075425D72554007AC46F /* NewsReaderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07D075325D72554007AC46F /* NewsReaderViewController.swift */; };
+		B07D075925D7473B007AC46F /* OverlayVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07D075825D7473B007AC46F /* OverlayVC.swift */; };
+		B07D075D25D747F4007AC46F /* DetailVC+Overlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07D075C25D747F4007AC46F /* DetailVC+Overlay.swift */; };
+		B07D076225D74962007AC46F /* CommentsOverlayVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07D076125D74962007AC46F /* CommentsOverlayVC.swift */; };
 		B0B5510F25B642E600C85393 /* API+User.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B5510E25B642E600C85393 /* API+User.swift */; };
 		B0B5512E25B6459600C85393 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B0B5512D25B6459600C85393 /* GoogleService-Info.plist */; };
 		B0B5513325B6469300C85393 /* AuthVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B5513225B6469300C85393 /* AuthVC.swift */; };
@@ -488,6 +491,9 @@
 		B078431125B0AFC000C1802C /* ScreenerVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenerVC.swift; sourceTree = "<group>"; };
 		B07905BC25BF2A2800B8089B /* WatchlistHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistHeaderView.swift; sourceTree = "<group>"; };
 		B07D075325D72554007AC46F /* NewsReaderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsReaderViewController.swift; sourceTree = "<group>"; };
+		B07D075825D7473B007AC46F /* OverlayVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayVC.swift; sourceTree = "<group>"; };
+		B07D075C25D747F4007AC46F /* DetailVC+Overlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DetailVC+Overlay.swift"; sourceTree = "<group>"; };
+		B07D076125D74962007AC46F /* CommentsOverlayVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsOverlayVC.swift; sourceTree = "<group>"; };
 		B0B5510E25B642E600C85393 /* API+User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API+User.swift"; sourceTree = "<group>"; };
 		B0B5512D25B6459600C85393 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B0B5513225B6469300C85393 /* AuthVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthVC.swift; sourceTree = "<group>"; };
@@ -887,6 +893,7 @@
 			children = (
 				B07842F625AFB06600C1802C /* DetailVC.swift */,
 				B0FF382325C0DB6D0033FBD2 /* DetailVC+UITableView.swift */,
+				B07D075C25D747F4007AC46F /* DetailVC+Overlay.swift */,
 				B078430D25AFD6BE00C1802C /* DetailHeaderView.swift */,
 				B07D075725D746FA007AC46F /* Overlays */,
 				B0FF382625C0DC550033FBD2 /* Cells */,
@@ -924,8 +931,18 @@
 		B07D075725D746FA007AC46F /* Overlays */ = {
 			isa = PBXGroup;
 			children = (
+				B07D075825D7473B007AC46F /* OverlayVC.swift */,
+				B07D076025D74955007AC46F /* Comments */,
 			);
 			path = Overlays;
+			sourceTree = "<group>";
+		};
+		B07D076025D74955007AC46F /* Comments */ = {
+			isa = PBXGroup;
+			children = (
+				B07D076125D74962007AC46F /* CommentsOverlayVC.swift */,
+			);
+			path = Comments;
 			sourceTree = "<group>";
 		};
 		B0B5513125B6467500C85393 /* Auth */ = {
@@ -1379,9 +1396,11 @@
 				B04F39F625D4A95B003C07FD /* Node.swift in Sources */,
 				B04F39FB25D4B7B1003C07FD /* DetailStatsCell.swift in Sources */,
 				B07842EA25AF9D8800C1802C /* Debouncer.swift in Sources */,
+				B07D075925D7473B007AC46F /* OverlayVC.swift in Sources */,
 				B060080325B259F3001AC579 /* SearchFilterRow.swift in Sources */,
 				B07842E525AF98FC00C1802C /* SymbolSearchResult.swift in Sources */,
 				B04F3A0225D4BFBE003C07FD /* DetailCommentsPreviewCell.swift in Sources */,
+				B07D075D25D747F4007AC46F /* DetailVC+Overlay.swift in Sources */,
 				B078430125AFCB9400C1802C /* PanContainerView.swift in Sources */,
 				B01A78A025B36EC5006B0510 /* RNSocketManager.swift in Sources */,
 				B07842F725AFB06600C1802C /* DetailVC.swift in Sources */,
@@ -1424,6 +1443,7 @@
 				B01A78A425B37052006B0510 /* Manager+Extensions.swift in Sources */,
 				B0E0671B25A3CE1600E41C89 /* SceneDelegate.swift in Sources */,
 				B07842E125AF979A00C1802C /* API+Ref.swift in Sources */,
+				B07D076225D74962007AC46F /* CommentsOverlayVC.swift in Sources */,
 				B0F75B1025B8E5090089754C /* UserDTO.swift in Sources */,
 				B078431225B0AFC000C1802C /* ScreenerVC.swift in Sources */,
 				B04F3A5B25D7146A003C07FD /* ImageManager.swift in Sources */,

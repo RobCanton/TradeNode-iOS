@@ -12,6 +12,7 @@ import Combine
 
 class DetailViewController:UIViewController {
     
+    static let headerHeight:CGFloat = 220
     
     var requests = Set<AnyCancellable>()
     var headerView:DetailHeaderView!
@@ -23,12 +24,15 @@ class DetailViewController:UIViewController {
     var contentView:UIView!
     var closeButton:UIButton!
     
-    static let headerHeight:CGFloat = 220
-    
     var headerHeightAnchor:NSLayoutConstraint!
     var headerTrailingAnchor:NSLayoutConstraint!
     
     var tableView:UITableView!
+    
+    var dimmerView:UIView!
+    var currentOverlay:UIViewController?
+    var overlayBottomAnchor:NSLayoutConstraint!
+    var currentOverlayType:OverlayType?
     
     var news = [NewsDTO]()
     
@@ -95,6 +99,12 @@ class DetailViewController:UIViewController {
         tableView.backgroundColor = UIColor.theme.secondaryBackground
         setupTable()
         
+        dimmerView = UIView()
+        dimmerView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        contentView.addSubview(dimmerView)
+        dimmerView.constraintToSuperview()
+        dimmerView.alpha = 0.0
+        
         let divider = UIView()
         divider.backgroundColor = UIColor.theme.separator
         //divider.alpha =
@@ -126,7 +136,7 @@ class DetailViewController:UIViewController {
             .sink(receiveCompletion: { state in
             }, receiveValue: { response in
                 self.news = response
-                self.tableView.reloadSections(IndexSet(integer: 3), with: .automatic)
+                self.tableView.reloadSections(IndexSet(integer: 3), with: .fade)
             }).store(in: &self.requests)
     }
     

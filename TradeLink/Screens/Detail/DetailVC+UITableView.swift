@@ -81,6 +81,8 @@ extension DetailViewController:UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         switch indexPath.section {
+        case 2:
+            self.presentOverlay(.chat)
         case 3:
             let dto = news[indexPath.row]
             self.dismiss(animated: true) {

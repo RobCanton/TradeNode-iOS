@@ -14,8 +14,9 @@ class User {
         self.username = dto.username
         self.items = []
         for itemDTO in dto.items ?? [] {
-            let item = UserItem(dto: itemDTO)
-            self.items.append(item)
+            if let item = UserItem(dto: itemDTO) {
+                self.items.append(item)
+            }
         }
     }
 }

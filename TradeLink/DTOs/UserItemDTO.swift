@@ -8,8 +8,8 @@
 import Foundation
 
 struct UserItemDTO:Codable {
-    let id:Int
-    let item: ItemDTO
+    let id:String
+    let item: ItemDTO?
 }
 
 struct UserItemCreateDTO:Codable {
