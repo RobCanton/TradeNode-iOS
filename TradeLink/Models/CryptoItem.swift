@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class CryptoItem:Item {
     
@@ -14,6 +15,53 @@ class CryptoItem:Item {
     let socketSymbol: String
     let name: String
     let cluster: MarketCluster
+    
+    var inorderTrades = 0
+    var outOfOrderTrades = 0
+    
+    var trades: [Trade]
+    
+    var price: Double? {
+        return trades.last?.price
+    }
+    
+    var prevClose:Double?
+    
+    var change:Double? {
+        guard let price = price, let prevClose = prevClose else { return nil }
+        return price - prevClose
+    }
+    
+    var changePercent:Double? {
+        guard let change = change, let prevClose = prevClose else { return nil }
+        return change / prevClose
+    }
+    
+    var changeStr:String {
+        guard let change = change else { return "" }
+        return String(format: "%.2f", change)
+    }
+    
+    var changePercentStr:String {
+        guard let changePercent = changePercent else { return "-" }
+        return "\(String(format: "%.2f", changePercent * 100))%"
+    }
+    
+    var changeFullStr:String {
+        return "\(changeStr) (\(changePercentStr))"
+    }
+    
+    var changeColor:UIColor {
+        var color = UIColor.theme.neutralLabel
+        if let change = change {
+            if change > 0 {
+                color = UIColor.theme.positiveLabel
+            } else if change < 0 {
+                color = UIColor.theme.negativeLabel
+            }
+        }
+        return color
+    }
     
     var delegates: [String:ItemDelegate]
     
@@ -26,14 +74,24 @@ class CryptoItem:Item {
     
         self.trades = []
         self.delegates = [:]
+        
+        if let data = dto.data {
+            if let lastPriceStr = data.price,
+               let lastPrice = Double(lastPriceStr),
+               let lastUpdatedStr = data.lastUpdated,
+               let lastUpdated = Double(lastUpdatedStr) {
+                 
+                 let trade = CryptoTrade(price: lastPrice, timestamp: lastUpdated)
+                 self.trades.append(trade)
+            }
+              
+            if let prevCloseStr = data.prevClose,
+                let prevClose = Double(prevCloseStr) {
+                self.prevClose = prevClose
+            }
+            
+        }
     }
-    
-    var trades: [Trade]
-    
-    var price: Double? {
-        return trades.last?.price
-    }
-    
     
     struct CryptoTrade:Trade {
         let price:Double
@@ -64,17 +122,32 @@ class CryptoItem:Item {
 
             let trade = CryptoTrade(price: p, timestamp: t)
 
-            self.trades.append(trade)
-
-            if self.trades.count > 500 {
+            if let last = self.trades.last {
+                if trade.timestamp < last.timestamp {
+                    //print("\(self.symbol): trade predates last trade")
+                    self.outOfOrderTrades += 1
+                } else {
+                    self.inorderTrades += 1
+                    self.trades.append(trade)
+                    //print("")
+                }
+            } else {
+                self.trades.append(trade)
+            }
+            
+            //print("\(self.symbol): \(self.inorderTrades) | \(self.outOfOrderTrades)")
+            
+            
+            if self.trades.count > 750 {
                 let _ = self.trades.removeFirst()
             }
             
-            self.trades.sort(by: {
-                return $0.timestamp < $1.timestamp
-            })
+//            self.trades.sort(by: {
+//                return $0.timestamp < $1.timestamp
+//            })
             
-            self.updateDelegates()
+            //self.updateDelegates()
+            NotificationCenter.default.post(Notification(name: Notification.Name("T.\(self.symbol)")))
 
         }
     }

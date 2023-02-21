@@ -45,12 +45,12 @@ class SearchViewController:UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
             
-        view.backgroundColor = UIColor.Theme.background
+        view.backgroundColor = UIColor.theme.background
         let navView = UIView()
         view.addSubview(navView)
         navView.constraintToSuperview(0, 0, nil, 0, ignoreSafeArea: false)
         navView.constraintHeight(to: 44)
-        navView.backgroundColor = UIColor.Theme.background
+        navView.backgroundColor = UIColor.theme.background
         
         closeButton = UIButton(type: .system)
         navView.addSubview(closeButton)
@@ -94,7 +94,7 @@ class SearchViewController:UIViewController {
         tableView.tableFooterView = UIView()
         tableView.tableHeaderView = UIView()
         //tableView.separatorStyle = .none
-        tableView.backgroundColor = UIColor.Theme.background2
+        tableView.backgroundColor = UIColor.theme.secondaryBackground
         
         tableView.delegate = self
         tableView.dataSource = self
@@ -188,7 +188,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         let result = searchResults[indexPath.row]
         cell.titleLabel.text = result.s
         cell.subtitleLabel.text = result.n
-        cell.backgroundColor = UIColor.Theme.background2
+        cell.backgroundColor = UIColor.theme.secondaryBackground
         return cell
     }
     

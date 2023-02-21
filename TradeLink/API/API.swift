@@ -13,6 +13,7 @@ struct API {
     
     enum Endpoints {
         case searchSymbols(query:String)
+        case cryptoNews(ticker:String)
         
         case user
         case userWatchlist
@@ -22,6 +23,8 @@ struct API {
             switch self {
             case .searchSymbols(let query):
                 return "/ref/search?query=\(query)"
+            case .cryptoNews(let ticker):
+                return "/ref/news/crypto/\(ticker)"
                 
             case .user:
                 return "/user"

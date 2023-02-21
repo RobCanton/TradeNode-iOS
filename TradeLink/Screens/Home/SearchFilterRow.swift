@@ -22,7 +22,7 @@ class SearchFilterRow:UIView {
     }
     
     private func setup() {
-        backgroundColor = UIColor.Theme.background2
+        backgroundColor = UIColor.theme.secondaryBackground
         //constraintHeight(to: 44)
         
         stackRow = UIStackView()

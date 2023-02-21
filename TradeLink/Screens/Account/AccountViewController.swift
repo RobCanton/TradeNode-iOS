@@ -17,10 +17,10 @@ class AccountViewController:UIViewController, UITableViewDelegate, UITableViewDa
         title = "Account"
         self.navigationController?.navigationBar.tintColor = UIColor.label
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(named: "Close"), style: .plain, target: self, action: #selector(handleClose))
-        view.backgroundColor = UIColor.Theme.background2
+        view.backgroundColor = UIColor.theme.secondaryBackground
         
         tableView = UITableView(frame: view.bounds, style: .grouped)
-        tableView.backgroundColor = UIColor.Theme.background2
+        tableView.backgroundColor = UIColor.theme.secondaryBackground
         view.addSubview(tableView)
         tableView.constraintToSuperview(0, 0, 0, 0, ignoreSafeArea: false)
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
@@ -37,7 +37,7 @@ class AccountViewController:UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return 2
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -45,14 +45,38 @@ class AccountViewController:UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = "Sign Out"
-        cell.textLabel?.tintColor = UIColor.systemRed
-        return cell
+        switch indexPath.section {
+        case 0:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+            cell.textLabel?.text = NetworkManager.shared.authToken ?? ""
+            cell.textLabel?.tintColor = UIColor.systemRed
+            return cell
+        case 1:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+            cell.textLabel?.text = "Sign Out"
+            cell.textLabel?.tintColor = UIColor.systemRed
+            return cell
+        default:
+            return UITableViewCell()
+        }
+        
     }
     
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        try? Auth.auth().signOut()
+        tableView.deselectRow(at: indexPath, animated: true)
+        switch indexPath.section {
+        case 0:
+            let pasteboard = UIPasteboard.general
+            pasteboard.string = NetworkManager.shared.authToken
+            break
+        case 1:
+            try? Auth.auth().signOut()
+            break
+        default:
+            break
+        }
+        
     }
     
     

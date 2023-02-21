@@ -38,10 +38,12 @@ class MarketSession {
         itemsDict = [:]
         
         for userItemDTO in userItems {
-            if let item = parseItem(from: userItemDTO.item) {
+            if let itemDTO = userItemDTO.item,
+               let item = parseItem(from: itemDTO) {
                 self.addItem(item)
-                let userItem = UserItem(dto: userItemDTO)
-                self.userItems.append(userItem)
+                if let userItem = UserItem(dto: userItemDTO) {
+                    self.userItems.append(userItem)
+                }
             }
         }
         
@@ -79,11 +81,13 @@ class MarketSession {
                 
             }, receiveValue: { response in
                 
-                if let item = parseItem(from: response.item) {
+                if let itemDTO = response.item,
+                   let item = parseItem(from: itemDTO) {
                     self.addItem(item)
                     item.observe()
-                    let userItem = UserItem(dto: response)
-                    self.userItems.append(userItem)
+                    if let userItem = UserItem(dto: response) {
+                        self.userItems.append(userItem)
+                    }
                     self.delegate?.userItemsUpdated(shouldReload: true)
                 }
                 

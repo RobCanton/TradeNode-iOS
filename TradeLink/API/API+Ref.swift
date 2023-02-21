@@ -13,5 +13,9 @@ extension API {
             let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
             return NetworkManager.shared.request(.GET, .searchSymbols(query: encodedQuery), ofType: [SymbolSearchResult].self)
         }
+        
+        static func cryptoNews(ticker:String) -> AnyPublisher<[NewsDTO], Error> {
+            return NetworkManager.shared.request(.GET, .cryptoNews(ticker: ticker), ofType: [NewsDTO].self)
+        }
     }
 }

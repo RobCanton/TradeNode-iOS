@@ -21,6 +21,7 @@ struct ItemDTO:Codable {
 }
 
 struct ItemDataDTO:Codable {
+    let lastUpdated:String?
     let price: String?
     let change: String?
     let prevClose: String?

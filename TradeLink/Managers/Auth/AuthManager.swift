@@ -101,10 +101,7 @@ class AuthManager:NSObject {
                 .sink(receiveCompletion: { state in
                     print("completion: \(state)")
                 }, receiveValue: { response in
-                    print("Response: \(response)")
-                    
                     completion(response)
-                    print("Huh")
                 })
                 .store(in: &requests)
             break

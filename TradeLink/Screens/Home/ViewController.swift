@@ -22,6 +22,10 @@ class ViewController: UIViewController {
     var tableView: UITableView!
     var items:[Item]
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return Theme.current.statusBarStyle
+    }
+    
     init(session:UserSession, marketSession:MarketSession) {
         self.userSession = session
         self.marketSession = marketSession
@@ -40,14 +44,22 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         title = nil//"Market Open"
         
-        view.backgroundColor = UIColor.Theme.background
+        view.backgroundColor = UIColor.theme.background
         
-        navigationController?.navigationBar.barTintColor = UIColor.Theme.background//Theme.background
-        navigationController?.navigationBar.backgroundColor = UIColor.Theme.background//Theme.background//UIColor.theme.//UIColor.systemBackground
+        navigationController?.navigationBar.barTintColor = UIColor.theme.secondaryBackground//Theme.background
+        navigationController?.navigationBar.backgroundColor = UIColor.theme.secondaryBackground//Theme.background//UIColor.theme.//UIColor.systemBackground
         navigationController?.navigationBar.isTranslucent = false
-        navigationController?.navigationBar.tintColor = UIColor.label//(hex: "02D277")
+        navigationController?.navigationBar.tintColor = UIColor.theme.label//(hex: "02D277")
         navigationController?.navigationBar.prefersLargeTitles = false
+        
         navigationItem.title = "After Hours"
+        
+        let backImage = UIImage(named: "Full Arrow Left")
+        navigationController?.navigationBar.backIndicatorImage = backImage
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = backImage
+        
+        navigationItem.leftItemsSupplementBackButton = true
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
         
 //        self.extendedLayoutIncludesOpaqueBars = true
         
@@ -68,17 +80,23 @@ class ViewController: UIViewController {
         view.addSubview(bgView)
         bgView.constraintToSuperview(insets: .zero, ignoreSafeArea: true)
         
-        bgView.backgroundColor = UIColor.Theme.background2//(hex: "141728")
+        bgView.backgroundColor = UIColor.theme.background//(hex: "141728")
+        
+        let headerView = WatchlistHeaderView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 56))
+    
         
         tableView = UITableView(frame: view.bounds, style: .plain)
         tableView.backgroundColor = UIColor.clear
-        tableView.tableHeaderView = UIView()
+        tableView.tableHeaderView = UIView()//headerView
         tableView.tableFooterView = UIView()
         view.addSubview(tableView)
         tableView.constraintToSuperview()
-        tableView.separatorColor = UIColor.separator.withAlphaComponent(0.25)
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: MinibarView.height, right: 0)
+        tableView.separatorColor = UIColor.separator.withAlphaComponent(0)
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 12)
+        tableView.showsVerticalScrollIndicator = false
         tableView.register(StockCell.self, forCellReuseIdentifier: "cell")
+        
         tableView.delegate = self
         tableView.dataSource = self
         tableView.dragDelegate = self
@@ -100,6 +118,23 @@ class ViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(reload), name: name, object: nil)
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        print("vc diddisappear")
+        let cells = tableView.visibleCells as? [StockCell] ?? [StockCell]()
+        for cell in cells {
+            cell.stopUpdating()
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        let cells = tableView.visibleCells as? [StockCell] ?? [StockCell]()
+        for cell in cells {
+            cell.startUpdating()
+        }
+    }
+    
     @objc func reload() {
         self.tableView.reloadData()
     }
@@ -119,11 +154,7 @@ class ViewController: UIViewController {
     }
 
     @objc func handleButtonLink() {
-        print("handleButtonLink")
-        let detail = DetailViewController()
-        detail.transitioningDelegate = transitionDelegate
-        detail.modalPresentationStyle = .custom
-        self.present(detail, animated: true, completion: nil)
+       
     }
     
 }
@@ -139,7 +170,15 @@ extension ViewController:MarketSessionDelegate {
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
-    
+//    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+//        let view = UIView()
+//        view.backgroundColor = UIColor.red
+//        return view
+//    }
+//
+//    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+//        return 44
+//    }
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -156,7 +195,8 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        handleButtonLink()
+        //handleButtonLink()
+        NotificationCenter.default.post(Notification(name: Notification.Name("open-item"), object: nil, userInfo: ["item": items[indexPath.row]]))
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {

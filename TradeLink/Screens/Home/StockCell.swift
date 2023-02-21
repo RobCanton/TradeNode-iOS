@@ -18,6 +18,10 @@ class StockCell:UITableViewCell {
     let chartView:ChartView
     let chartViewModel:ChartViewModel
     
+    weak var item:Item?
+    
+    
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         symbolLabel = UILabel()
         nameLabel = UILabel()
@@ -34,7 +38,7 @@ class StockCell:UITableViewCell {
     }
     
     private func setup() {
-        backgroundColor = UIColor.Theme.background2
+        backgroundColor = UIColor.theme.background
         //contentView.backgroundColor = UIColor.Theme.background2
         
         let titleStack = UIStackView()
@@ -43,13 +47,14 @@ class StockCell:UITableViewCell {
         
         contentView.addSubview(titleStack)
         titleStack.constraintToSuperview(12, 12, 12, nil, ignoreSafeArea: true)
-        titleStack.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.33).isActive = true
+        titleStack.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.38).isActive = true
         
         symbolLabel.text = "AAPL"
+        symbolLabel.textColor = UIColor.theme.label
         symbolLabel.font = UIFont.systemFont(ofSize: 18.0, weight: .semibold)
         titleStack.addArrangedSubview(symbolLabel)
         nameLabel.text = "Apple Inc"
-        nameLabel.textColor = .secondaryLabel
+        nameLabel.textColor = UIColor.theme.secondaryLabel
         nameLabel.font = UIFont.systemFont(ofSize: 13.0, weight: .regular)
         
         titleStack.addArrangedSubview(nameLabel)
@@ -61,16 +66,17 @@ class StockCell:UITableViewCell {
         
         contentView.addSubview(priceStack)
         priceStack.constraintToSuperview(12, nil, 12, 12, ignoreSafeArea: true)
-        priceStack.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.33).isActive = true
+        priceStack.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.38).isActive = true
         
         priceLabel.text = "17.20"
+        priceLabel.textColor = UIColor.theme.label
         priceLabel.font = UIFont.monospacedSystemFont(ofSize: 18.0, weight: .semibold)
         
         priceStack.addArrangedSubview(priceLabel)
         
-        changeLabel.text = "+6.20"
-        changeLabel.textColor = UIColor(hex: "02D277")
-        changeLabel.font = UIFont.monospacedSystemFont(ofSize: 13.0, weight: .regular)
+        changeLabel.text = "-"
+        changeLabel.textColor = UIColor.theme.secondaryLabel
+        changeLabel.font = UIFont.monospacedSystemFont(ofSize: 11.0, weight: .regular)
         
         priceStack.addArrangedSubview(changeLabel)
         
@@ -84,32 +90,40 @@ class StockCell:UITableViewCell {
     }
     
     func setup(item:Item) {
-        item.setDelegate(key: "home", self)
+        self.item = item
+        NotificationCenter.default.removeObserver(self)
+        NotificationCenter.default.addObserver(self, selector: #selector(didUpdate), name: Notification.Name("T.\(item.symbol)"), object: nil)
+        //item.setDelegate(key: "home", self)
         symbolLabel.text = item.symbol
         nameLabel.text = item.name
-
-        if let price = item.trades.last?.price {
-            priceLabel.text = price.priceFormatted
-        } else {
-            priceLabel.text = "-"
-        }
-        
-        
-        
-        
+        self.chartViewModel.isObserving = true
+        self.didUpdate()
     }
     
-    
-}
-
-extension StockCell: ItemDelegate {
-    func didUpdate(_ item:Item) {
-        if let price = item.trades.last?.price {
+    @objc func didUpdate() {
+        guard let item = self.item else { return }
+        if let price = item.price {
             priceLabel.text = price.priceFormatted
         } else {
             priceLabel.text = "-"
         }
+
+        changeLabel.text = item.changeFullStr
+        let changeColor = item.changeColor
+        changeLabel.textColor = changeColor
         
-        chartViewModel.setTrades(item.trades)
+        chartViewModel.setTrades(item.trades, color: changeColor)
+    }
+    
+    func stopUpdating() {
+        NotificationCenter.default.removeObserver(self)
+        //self.chartView.cancelTimer()
+        self.chartViewModel.isObserving = false
+    }
+    
+    func startUpdating() {
+        guard let item = self.item else { return }
+        setup(item: item)
+        //self.chartView.instantiateTimer()
     }
 }

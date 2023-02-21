@@ -7,16 +7,45 @@
 
 import Foundation
 import UIKit
+import Combine
+
 
 class DetailViewController:UIViewController {
     
+    static let headerHeight:CGFloat = 220
+    
+    var requests = Set<AnyCancellable>()
     var headerView:DetailHeaderView!
+    var headerBackDrop:UIView!
+    var minibarView:MinibarView!
+    
+    weak var rootDelegate:RootTabBarDelegate?
+    
     var contentView:UIView!
     var closeButton:UIButton!
     
-    static let headerHeight:CGFloat = 220
-    
     var headerHeightAnchor:NSLayoutConstraint!
+    var headerTrailingAnchor:NSLayoutConstraint!
+    
+    var tableView:UITableView!
+    
+    var dimmerView:UIView!
+    var currentOverlay:UIViewController?
+    var overlayBottomAnchor:NSLayoutConstraint!
+    var currentOverlayType:OverlayType?
+    
+    var news = [NewsDTO]()
+    
+    weak var item:Item?
+    init(item:Item) {
+        self.item = item
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,21 +54,59 @@ class DetailViewController:UIViewController {
         //view.layer.borderWidth = 0.5
         //view.layer.borderColor = UIColor.red.cgColor
         
-        headerView = DetailHeaderView()
+        headerBackDrop = UIView()
+        headerBackDrop.backgroundColor = UIColor.theme.secondaryBackground
+        view.addSubview(headerBackDrop)
+        headerBackDrop.constraintToSuperview(0, 0, nil, 0, ignoreSafeArea: false)
+        headerBackDrop.heightAnchor.constraint(equalToConstant: Self.headerHeight).isActive = true
+        
+        minibarView = MinibarView()
+        minibarView.isUserInteractionEnabled = false
+        
+        minibarView.backgroundColor = UIColor.clear
+        view.addSubview(minibarView)
+        minibarView.constraintToSuperview(0, 0, nil, 0, ignoreSafeArea: false)
+        if let item = item {
+            minibarView.setup(item: item)
+        }
+        
+        minibarView.updateChart = false
+        minibarView.updatePrices = false
+        
+        headerView = DetailHeaderView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: Self.headerHeight))
+    
         view.addSubview(headerView)
-        headerView.constraintToSuperview(0, 0, nil, 0, ignoreSafeArea: false)
+        headerView.constraintToSuperview(0, 0, nil, nil, ignoreSafeArea: false)
         //headerView.constraintHeight(to: Self.headerHeight)
+        headerTrailingAnchor = headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        headerTrailingAnchor.isActive = true
         headerHeightAnchor = headerView.heightAnchor.constraint(equalToConstant: Self.headerHeight)
         headerHeightAnchor.isActive = true
+        headerView.setupChart()
+        if let item = item {
+            headerView.setup(item: item)
+        }
         
         contentView = UIView()
         view.addSubview(contentView)
-        contentView.backgroundColor = UIColor.Theme.background2
+        contentView.backgroundColor = UIColor.theme.secondaryBackground
         contentView.constraintToSuperview(nil, 0, 0, 0, ignoreSafeArea: true)
         contentView.topAnchor.constraint(equalTo: headerView.bottomAnchor).isActive = true
         
+        tableView = UITableView(frame: .zero, style: .plain)
+        contentView.addSubview(tableView)
+        tableView.constraintToSuperview()
+        tableView.backgroundColor = UIColor.theme.secondaryBackground
+        setupTable()
+        
+        dimmerView = UIView()
+        dimmerView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        contentView.addSubview(dimmerView)
+        dimmerView.constraintToSuperview()
+        dimmerView.alpha = 0.0
+        
         let divider = UIView()
-        divider.backgroundColor = UIColor.separator
+        divider.backgroundColor = UIColor.theme.separator
         //divider.alpha =
         contentView.addSubview(divider)
         divider.constraintToSuperview(0, 0, nil, 0, ignoreSafeArea: true)
@@ -61,9 +128,26 @@ class DetailViewController:UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        guard let item = self.item else { return }
+        API.Ref.cryptoNews(ticker: item.base)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { state in
+            }, receiveValue: { response in
+                self.news = response
+                self.tableView.reloadSections(IndexSet(integer: 3), with: .fade)
+            }).store(in: &self.requests)
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         animateBlackout()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        headerView.clear()
     }
     
     func animateBlackout() {
@@ -75,13 +159,32 @@ class DetailViewController:UIViewController {
 
 extension DetailViewController:InteractiveModalDelegate {
     func transitionDidUpdate(progress: CGFloat) {
-        print("Progress: \(progress)")
+        //print("Progress: \(progress)")
         
         let reverseProgress = 1 - progress
-        let newHeight = max((Self.headerHeight - MinibarView.height) * (reverseProgress) + MinibarView.height, MinibarView.height)
-        self.headerHeightAnchor.constant = newHeight
-        self.headerView.backdrop.alpha = 1 - (progress * progress)
-        self.closeButton.alpha = reverseProgress * reverseProgress
+        if progress > 0.75 {
+            let halfProgress = min((progress - 0.75) / 0.25, 1.0)
+            headerTrailingAnchor.constant = -(view.bounds.width * (2/3) * halfProgress)
+            self.headerHeightAnchor.constant = MinibarView.height
+            self.closeButton.alpha = 0.0
+            self.minibarView.alpha = halfProgress * halfProgress
+            self.headerBackDrop.alpha = 1.0 - 0.15 * halfProgress
+            self.headerView.contentView.alpha = 0
+            self.minibarView.updatePrices = true
+            
+        } else {
+            let halfProgress = progress / 0.75
+            self.closeButton.alpha = 1 - halfProgress
+            
+            headerTrailingAnchor.constant = 0
+            
+            let newHeight = max((Self.headerHeight - MinibarView.height) * (1 - halfProgress) + MinibarView.height, MinibarView.height)
+            self.headerHeightAnchor.constant = newHeight
+            self.headerView.contentView.alpha = 1 - halfProgress
+            self.minibarView.alpha = 0.0
+            self.headerBackDrop.alpha = 1.0
+            self.minibarView.updatePrices = false
+        }
         //self.contentView.alpha = 0.5 + 0.5 * reverseProgress
         if progress > 0 {
             self.view.backgroundColor = .clear
